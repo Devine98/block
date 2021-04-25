@@ -21,3 +21,22 @@ class ContrastiveLoss(torch.nn.Module):
                             - distance, min=0.0), 2))
         return loss_contrastive
 
+class FocalLoss(nn.Module):
+    '''
+    input : pred (shape :b,type:float),target(shape:b,type:float)
+    output: out(shape:b,type:float)
+    '''
+    def __init__(self, gamma=2, logits = True,size_average=True):
+        super(FocalLoss, self).__init__()
+        self.gamma = gamma
+        self.size_average = size_average
+        self.logits = logits
+        print('focal loss')
+
+    def forward(self, pred, target):
+        probs = torch.sigmoid(pred)
+        pt = probs.clamp(min=0.0001,max=0.999)
+        loss = - (1 - pt) ** self.gamma * target * torch.log(pt) - pt ** self.gamma * (1 - target) * torch.log(1 - pt)
+        return torch.mean(loss)
+        
+ 
