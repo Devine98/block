@@ -24,7 +24,7 @@ setup(
     keywords="nlp pipeline",
     url="https://gitlab.jingle.cn/dataplatform/ml/nlp/sprite",
     python_requires=">=3.7",
-    packages=find_packages("src", exclude=["*test*", "*example*", "*traine*"]),
+    packages=find_packages("src", exclude=["*test*", "*example*",]),
     package_dir={"": "src"},
     classifiers=[
         "Development Status :: 3 - Alpha",
