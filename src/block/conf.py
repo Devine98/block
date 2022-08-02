@@ -1,0 +1,3 @@
+PRETRAINED_MODELS = []
+
+PRETRAINED_TOKENIZERS = ["bert_tokenizer"]
