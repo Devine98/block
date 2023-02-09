@@ -1,16 +1,14 @@
 import os
 from typing import Optional
 
-TEMP_PATH = "/tmp/.sprite"
-HDFS_ADDRESS = "http://dts-sg-hadoop01:50070/"
-HDFS_PATH = "/workspace/ml/nlp/sprite"
+TEMP_PATH = "/tmp/.block"
+HDFS_ADDRESS = ""
+HDFS_PATH = ""
 
-MINIO_URL = os.getenv("MINIO_URL", default="http://api.minio.test.data.garenanow.com")
-AWS_SECRET_ACCESS_KEY = os.getenv(
-    "AWS_SECRET_ACCESS_KEY", default="vYXsIEVO64MbUBX6rbzHhKwvAbOg0Mbj"
-)
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", default="jobg3Zd1y3Gv1DJF")
-BUCKET_NAME = os.getenv("BUCKET_NAME", default="ml-test")
+MINIO_URL = os.getenv("MINIO_URL", default="m")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", default="")
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", default="")
+BUCKET_NAME = os.getenv("BUCKET_NAME", default="")
 
 
 class ModelConfig:
