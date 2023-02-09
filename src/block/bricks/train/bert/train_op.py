@@ -37,7 +37,6 @@ def div_file_list(file_list: list, n: "int>0" = 8, k: "int>0" = 1) -> tuple:
         reduce_nums.append(reduce_nums[-1] + nums[i])
 
     # 根据reduce_nums决定file list中每个file归属哪个k,得到k_list
-
     def _allocate_k(left_num, right_num, last_k=1):
         k_nums = last_k * avg_nums_per_n
         if right_num <= k_nums:
