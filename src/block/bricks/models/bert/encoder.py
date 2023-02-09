@@ -3,8 +3,8 @@ from typing import Optional
 import torch
 from torch import nn
 
-from sprite.bricks.models.bert.attention import MultiHeadAttention
-from sprite.bricks.models.bert.pff import PositionwiseFeedForward
+from block.bricks.models.bert.attention import MultiHeadAttention
+from block.bricks.models.bert.pff import PositionwiseFeedForward
 
 
 class EncoderLayer(nn.Module):

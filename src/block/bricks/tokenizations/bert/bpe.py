@@ -1,14 +1,14 @@
 from typing import Dict, Iterable, List, Optional, Set, Union
 
-from sprite.bricks.tokenizations.tokenization_utils import whitespace_tokenize
+from block.bricks.tokenizations.tokenization_utils import whitespace_tokenize
 
 
 class BPE:
     """A implementation of wordpiece algorithm modified from berttokenizer.
 
     Attributes:
-        maxlen (int, optional):
-            Model will not tokenize words longer than `maxlen`.
+        max_token_length (int, optional):
+            Model will not tokenize words longer than `max_token_length`.
             It will return `unk_token` instead.
             Defaults to 100.
         unk_token (str, optional):
@@ -23,11 +23,11 @@ class BPE:
     def __init__(
         self,
         *,
-        maxlen: int = 100,
+        max_token_length: int = 100,
         unk_token: str = "[UNK]",
         vocab: Optional[Union[Dict, Set]] = None,
     ):
-        self.maxlen = maxlen
+        self.max_token_length = max_token_length
         self.unk_token = unk_token
         self.vocab = vocab
 
@@ -48,7 +48,7 @@ class BPE:
             text = whitespace_tokenize(text)
         for token in text:
             chars = list(token)
-            if len(chars) > self.maxlen:
+            if len(chars) > self.max_token_length:
                 output_tokens.append(self.unk_token)
                 continue
             is_bad = False
