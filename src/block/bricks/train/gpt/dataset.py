@@ -41,14 +41,15 @@ class DataSet(torch.utils.data.Dataset):
         ints = self.tokenizer.convert_tokens_to_id(words)
 
         # pad
-        ints = pad_list(ints, maxlen=self.n_positions, pad=0)
+        inputs = pad_list(ints, maxlen=self.n_positions, pad=0)
         seg = pad_list(seg, maxlen=self.n_positions, pad=0)
+        labels = pad_list(ints, maxlen=self.n_positions, pad=-100)
 
         # tensor
-        ints = torch.tensor(ints).long()
+        inputs = torch.tensor(inputs).long()
         seg = torch.tensor(seg).long()
 
-        return ints, seg
+        return inputs, seg, labels
 
     def __getitem__(self, idx):
         return self.process(self.corpus[idx])

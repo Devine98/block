@@ -10,6 +10,7 @@ import pickle
 
 import dataset
 import torch
+import trainer
 
 from block.bricks.models.gpt.heads import GPT2LMHeadModel
 from block.bricks.tokenizations.bert.tokenization import Tokenizer
@@ -65,10 +66,12 @@ model = GPT2LMHeadModel(config=config)
 # model.load_state_dict(torch.load('./model.pkl', map_location="cpu"))
 
 # trainer
+imp.reload(trainer)
+t = trainer.Trainer(model=model, train_set=data_set)
+# t.optim.n_current_steps=148000
+t.train(file_path="/data/home/ze.song/models/gpt", max_num=100)
+
 
 model.load_state_dict(
     torch.load("./check_points/bert/model_1000000.pkl", map_location="cpu")
 )
-
-
-torch.save(model.bert, "./check_points/bert/bert.pkl")
