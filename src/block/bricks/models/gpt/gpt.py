@@ -52,6 +52,7 @@ class GPT2(PreTrainedModel, nn.Module):
         self.layer_norm_epsilon = config.get("layer_norm_epsilon", 1e-5)
         self.pad_idx = config.get("pad_idx", 0)
         self.dtype = config.get("dtype", torch.float32)
+        self.segment_size = config.get("segment_size", 3)
 
         self.e = Embeddings(config)
         self.h = nn.ModuleList([GPT2Block(config) for i in range(self.n_layer)])
@@ -91,6 +92,7 @@ class GPT2(PreTrainedModel, nn.Module):
     def forward(
         self,
         inputs: torch.Tensor,
+        segment_ids: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.FloatTensor] = None,
     ) -> torch.Tensor:
         """Forward function of bert.
@@ -98,6 +100,9 @@ class GPT2(PreTrainedModel, nn.Module):
         Args:
             inputs (torch.Tensor):
                 The index of words. shape:(b,l)
+            segment_ids (Optional[torch.Tensor]):
+                The index of segments. shape:(b,l)
+                defaults to None .
             attention_mask: Optional[torch.FloatTensor] :
                 attention mask .
                 defaults to None.
@@ -114,7 +119,7 @@ class GPT2(PreTrainedModel, nn.Module):
             # (b,1,1,l)
 
         # (b,l)
-        x = self.e(inputs)
+        x = self.e(inputs, segment_ids)
         # (b , l ,d)
         for block in self.h:
             outputs = block(x, attention_mask=attention_mask)

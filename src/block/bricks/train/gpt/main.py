@@ -5,11 +5,14 @@ Created on 20220222
 """
 
 import importlib as imp
+import os
 import pickle
 
+import dataset
 import torch
-from models.bert import nets
-from trainers.bert import dataset, trainer
+
+from block.bricks.models.gpt.heads import GPT2LMHeadModel
+from block.bricks.tokenizations.bert.tokenization import Tokenizer
 
 cuda = torch.cuda.is_available()
 device = "cuda" if cuda else "cpu"
@@ -18,35 +21,50 @@ n_device = torch.cuda.device_count()
 torch.backends.cudnn.is_available()
 torch.backends.cudnn.version()
 torch.set_default_tensor_type(torch.FloatTensor)
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
-torch.cuda.set_device(2)
+os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
+# torch.cuda.set_device(2)
 
+
+# config
+config = {
+    "vocab_size": 13317,
+    "embd_pdrop": 0.1,
+    "n_embd": 768,
+    "n_head": 12,
+    "n_positions": 1024,
+    "n_layer": 12,
+    "attn_pdrop": 0.1,
+    "resid_dropout": 0.1,
+    "n_inner": 768 * 4,
+    "layer_norm_epsilon": 1e-5,
+    "pad_idx": 0,
+    "dtype": torch.float32,
+    "segment_size": 3,
+}
 
 # data 7.5亿
-file = open("/data/home/ze.song/data/corpus/game_corpus.bin", "rb")
-x = pickle.load(file)
-file.close()
+with open("/data/home/ze.song/data/corpus/dialogue/corpus.pkl", "rb") as f:
+    corpus = pickle.load(f)
 
-file = open("/data/home/ze.song/data/corpus/corpus_wiki.bin", "rb")
-y = pickle.load(file)
-file.close()
+with open(
+    "/data/home/ze.song/git/block/src/block/bricks/train/gpt/model_files/vocab.pkl",
+    "rb",
+) as f:
+    vocab = pickle.load(f)
+
+# tokenizer
+t = Tokenizer(vocab=vocab)
+t.init_model()
 
 # dataset
 imp.reload(dataset)
-data_set = dataset.DataSet(x=x, y=y, maxlen=512, maxpred=64)
+data_set = dataset.DataSet(corpus=corpus, config=config, tokenizer=t)
 
 # model
-imp.reload(nets)
-model = nets.make_model(vocab_size=50000, maxlen=512, n_layers=8, hidden_size=512)
+model = GPT2LMHeadModel(config=config)
 # model.load_state_dict(torch.load('./model.pkl', map_location="cpu"))
 
 # trainer
-imp.reload(trainer)
-t = trainer.Trainer(model=model, train_set=data_set)
-# t.optim.n_current_steps=148000
-t.train(file_path="./check_points/bert/", max_num=2000000)
-# t.iteration( t.train_loader,True,"./check_points/bert/",200000)
-
 
 model.load_state_dict(
     torch.load("./check_points/bert/model_1000000.pkl", map_location="cpu")

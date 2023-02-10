@@ -38,11 +38,12 @@ class GPT2LMHeadModel(PreTrainedModel, nn.Module):
     def forward(
         self,
         inputs: torch.Tensor,
+        segment_ids: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.FloatTensor] = None,
         labels: Optional[torch.LongTensor] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
 
-        x = self.model(inputs, attention_mask=attention_mask)
+        x = self.model(inputs, segment_ids=segment_ids, attention_mask=attention_mask)
         lm_logits = self.lm_head(x)
         loss = None
         if labels is not None:

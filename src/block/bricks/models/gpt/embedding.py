@@ -25,23 +25,28 @@ class Embeddings(nn.Module):
         self.embed_dim = config.get("n_embd", 768)
         self.pad_idx = config.get("pad_idx", 768)
         self.embd_pdrop = config.get("embd_pdrop", 0.1)
+        self.segment_size = config.get("segment_size", 3)
 
         self.wte = nn.Embedding(
             self.vocab_size, self.embed_dim, padding_idx=self.pad_idx
         )
         self.wpe = nn.Embedding(self.n_positions, self.embed_dim)
+
+        self.wse = nn.Embedding(self.segment_size, self.embed_dim)
+
         self.drop = nn.Dropout(self.embd_pdrop)
 
     def forward(
-        self,
-        token_ids: torch.Tensor,
+        self, token_ids: torch.Tensor, segment_ids: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
         """Forward function of embedding.
 
         Args:
             token_ids (torch.Tensor):
                 The index of words. shape:(b,l)
-
+            segment_ids (Optional[torch.Tensor]):
+                The index of segments. shape:(b,l)
+                defaults to None .
         Returns:
             torch.Tensor:
                 Embedding result of token_ids. shape:(b,l,d)
@@ -59,7 +64,12 @@ class Embeddings(nn.Module):
         # word embed
         inputs_embeds = self.wte(token_ids)
 
+        # seg embed
+        if segment_ids is None:
+            segment_ids = torch.zeros_like(token_ids)
+        segment_embeddings = self.wse(segment_ids)
+
         # sum of embeddings
-        hidden_states = inputs_embeds + position_embeds
+        hidden_states = inputs_embeds + position_embeds + segment_embeddings
         hidden_states = self.drop(hidden_states)
         return hidden_states
