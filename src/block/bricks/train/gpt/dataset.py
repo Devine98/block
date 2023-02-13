@@ -48,6 +48,7 @@ class DataSet(torch.utils.data.Dataset):
         # tensor
         inputs = torch.tensor(inputs).long()
         seg = torch.tensor(seg).long()
+        labels = torch.tensor(labels).long()
 
         return inputs, seg, labels
 

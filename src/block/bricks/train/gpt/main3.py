@@ -5,7 +5,6 @@ Created on 20220222
 """
 
 import importlib as imp
-import os
 import pickle
 
 import dataset
@@ -22,21 +21,21 @@ n_device = torch.cuda.device_count()
 torch.backends.cudnn.is_available()
 torch.backends.cudnn.version()
 torch.set_default_tensor_type(torch.FloatTensor)
-os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
-torch.cuda.set_device(2)
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
+torch.cuda.set_device(1)
 
 
 # config
 config = {
     "vocab_size": 13317,
     "embd_pdrop": 0.1,
-    "n_embd": 1024,
-    "n_head": 16,
+    "n_embd": 1536,
+    "n_head": 24,
     "n_positions": 320,
-    "n_layer": 12,
+    "n_layer": 18,
     "attn_pdrop": 0.1,
     "resid_dropout": 0.1,
-    "n_inner": 1024 * 4,
+    "n_inner": 1536 * 4,
     "layer_norm_epsilon": 1e-5,
     "pad_idx": 0,
     "dtype": torch.float32,
@@ -71,9 +70,9 @@ model = GPT2LMHeadModel(config=config)
 
 # trainer
 imp.reload(trainer)
-t = trainer.Trainer(model=model, train_set=data_set, batch_size=32, opt_freq=8)
+t = trainer.Trainer(model=model, train_set=data_set, batch_size=8, opt_freq=32)
 # t.optim.n_current_steps=148000
-t.train(file_path="/data/home/ze.song/models/gpt", max_num=100)
+t.train(file_path="/data/home/ze.song/models/gptb", max_num=100)
 
 
 model.load_state_dict(
