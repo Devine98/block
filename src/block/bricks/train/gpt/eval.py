@@ -60,21 +60,11 @@ if __name__ == "__main__":
 
     # base
     imp.reload(chatbot)
-    config = {
-        "vocab_size": 13317,
-        "embd_pdrop": 0.1,
-        "n_embd": 1024,
-        "n_head": 16,
-        "n_positions": 320,
-        "n_layer": 12,
-        "attn_pdrop": 0.1,
-        "resid_dropout": 0.1,
-        "n_inner": 1024 * 4,
-        "layer_norm_epsilon": 1e-5,
-        "pad_idx": 0,
-        "dtype": torch.float32,
-        "segment_size": 3,
-    }
+    with open(
+        "./model_files/config.pkl",
+        "rb",
+    ) as f:
+        config = pickle.load(f)
     model_path = get_latest_model("/data/home/ze.song/models/gpt")
     bot2 = chatbot.Bot(model_path=model_path, vocab_path=vocab_path, config=config)
     bot2.init()
