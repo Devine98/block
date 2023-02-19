@@ -163,13 +163,10 @@ laji/
 la_ji/
 __pycache__/
 data/
-trainers/
 self/
 check_points/
-*.pkl
 *.parquet
 *.bin
-trainer.py
 *checkpoint
 _pycache_/
 .ipynb_checkpoints/
