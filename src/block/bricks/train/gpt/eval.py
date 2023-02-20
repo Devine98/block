@@ -46,6 +46,7 @@ if __name__ == "__main__":
     model_path = get_latest_model("/data/home/ze.song/models/gptb")
     print(model_path)
     model_path = "/data/home/ze.song/models/gptb/model_0_790000.pkl"
+    model_path = "/data/home/ze.song/models/gpt/model_0_10000.pkl"
     bot3 = chatbot.Bot(model_path=model_path, vocab_path=vocab_path)
     bot3.init()
     bot3.talk("去吃火锅吗?", top_k=None, top_p=0.5)
@@ -68,3 +69,29 @@ if __name__ == "__main__":
 path = "/data/home/ze.song/data/raw_corpus/wikicorpus/zh/AA/wiki_11"
 with open(path, "r") as f:
     a = f.readlines()
+
+    model = torch.nn.Linear(10, 10)
+
+optimizer = torch.optim.SGD(model.parameters(), lr=1e-4, momentum=0.9)
+
+
+def rule(epoch, warmup_steps=10, max_steps=100):
+    if max_steps < 10 * warmup_steps:
+        max_steps = 10 * warmup_steps
+    if epoch < warmup_steps:
+        lamda = 5 * epoch / warmup_steps
+    elif epoch < 2 * warmup_steps:
+        lamda = 5 - 4 * (epoch - warmup_steps) / warmup_steps
+    elif epoch < max_steps:
+        lamda = 1.3 - (epoch - 2 * warmup_steps) / max_steps
+    else:
+        lamda = 0.3
+    return lamda
+
+
+scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=rule)
+
+for i in range(500):
+    scheduler.step()
+
+optimizer

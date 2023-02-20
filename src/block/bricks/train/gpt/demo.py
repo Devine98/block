@@ -12,7 +12,7 @@ n_device = torch.cuda.device_count()
 torch.backends.cudnn.is_available()
 torch.backends.cudnn.version()
 torch.set_default_tensor_type(torch.FloatTensor)
-torch.cuda.set_device(2)
+torch.cuda.set_device(0)
 
 
 def get_latest_model(path="/data/home/ze.song/models/gpt"):
