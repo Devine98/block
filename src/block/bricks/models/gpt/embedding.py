@@ -66,7 +66,9 @@ class Embeddings(nn.Module):
 
         # seg embed
         if segment_ids is None:
-            segment_ids = torch.zeros_like(token_ids)
+            segment_ids = torch.zeros_like(
+                token_ids, dtype=torch.long, device=token_ids.device
+            )
         segment_embeddings = self.wse(segment_ids)
 
         # sum of embeddings

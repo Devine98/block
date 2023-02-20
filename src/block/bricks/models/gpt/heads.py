@@ -40,21 +40,8 @@ class GPT2LMHeadModel(PreTrainedModel, nn.Module):
         inputs: torch.Tensor,
         segment_ids: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.FloatTensor] = None,
-        labels: Optional[torch.LongTensor] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
 
         x = self.model(inputs, segment_ids=segment_ids, attention_mask=attention_mask)
         lm_logits = self.lm_head(x)
-        loss = None
-        if labels is not None:
-
-            # Shift so that tokens < n predict n
-            shift_logits = lm_logits[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
-
-            # Flatten the tokens
-            loss_fct = nn.CrossEntropyLoss()
-            loss = loss_fct(
-                shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1)
-            )
-        return loss, lm_logits
+        return lm_logits

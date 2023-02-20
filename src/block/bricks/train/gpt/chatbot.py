@@ -13,6 +13,15 @@ from torch.nn import functional as F
 from block.bricks.models.gpt.heads import GPT2LMHeadModel
 from block.bricks.tokenizations.bert.tokenization import Tokenizer
 
+cuda = torch.cuda.is_available()
+device = "cuda" if cuda else "cpu"
+device = torch.device(device)
+n_device = torch.cuda.device_count()
+torch.backends.cudnn.is_available()
+torch.backends.cudnn.version()
+torch.set_default_tensor_type(torch.FloatTensor)
+torch.cuda.set_device(2)
+
 
 def pad_list(text, maxlen=1024, pad=0):
     x = [pad] * maxlen
@@ -38,13 +47,13 @@ class Bot:
         config={
             "vocab_size": 13317,
             "embd_pdrop": 0.1,
-            "n_embd": 512,
-            "n_head": 8,
-            "n_positions": 256,
-            "n_layer": 6,
+            "n_embd": 1536,
+            "n_head": 24,
+            "n_positions": 320,
+            "n_layer": 18,
             "attn_pdrop": 0.1,
             "resid_dropout": 0.1,
-            "n_inner": 512 * 4,
+            "n_inner": 1536 * 4,
             "layer_norm_epsilon": 1e-5,
             "pad_idx": 0,
             "dtype": torch.float32,
@@ -87,8 +96,8 @@ class Bot:
         top_p=0.6,
         min_tokens_to_keep=5,
     ) -> torch.Tensor:
-        x = inputs.cuda()
-        seg = seg.cuda()
+        x = inputs.to(self.model.lm_head.weight.device)
+        seg = seg.to(self.model.lm_head.weight.device)
         for idx, _ in enumerate(range(max_num)):
             # if the sequence context is growing too long
             # we must crop it at n_positions
@@ -150,7 +159,7 @@ class Bot:
                 logits[0][102] = logits[0][102] / 10
 
             # apply softmax to convert logits to (normalized) probabilities
-            logits = logits.cuda()
+            logits = logits.to(self.model.lm_head.weight.device)
             probs = F.softmax(logits, dim=-1)
 
             # either sample from the distribution
@@ -162,16 +171,33 @@ class Bot:
 
             # append sampled index to the running sequence and continue
             x = torch.cat((x, idx_next), dim=1)
-            seg = torch.cat((seg, torch.tensor([[2]]).long().cuda()), dim=1)
+            seg = torch.cat(
+                (seg, torch.tensor([[2]]).long().to(self.model.lm_head.weight.device)),
+                dim=1,
+            )
             if idx_next[0][0].item() == 102:
                 break
         if idx_next[0][0].item() != 102:
-            x = torch.cat((x, torch.tensor([[102]]).long().cuda()), dim=1)
-            seg = torch.cat((seg, torch.tensor([[2]]).long().cuda()), dim=1)
+            x = torch.cat(
+                (x, torch.tensor([[102]]).long().to(self.model.lm_head.weight.device)),
+                dim=1,
+            )
+            seg = torch.cat(
+                (seg, torch.tensor([[2]]).long().to(self.model.lm_head.weight.device)),
+                dim=1,
+            )
         return x, seg
 
     @torch.no_grad()
-    def talk(self, input="", max_num=20, top_k=5, top_p=0.6, min_tokens_to_keep=5):
+    def talk(
+        self,
+        input="",
+        max_num=50,
+        top_k=None,
+        top_p=0.5,
+        min_tokens_to_keep=5,
+        temperature=1.0,
+    ):
         if input == "重启":
             self.init()
             return "重启完毕"
@@ -205,6 +231,7 @@ class Bot:
             top_k=top_k,
             top_p=top_p,
             min_tokens_to_keep=min_tokens_to_keep,
+            temperature=temperature,
         )
 
         xx = res[0].tolist()

@@ -2,6 +2,7 @@ import json
 import os
 import pickle
 
+import zhconv
 from tqdm import tqdm
 
 
@@ -56,6 +57,27 @@ def process_lccc(path):
     return corpus
 
 
+def wiki_process(path):
+    corpus = []
+    doc = []
+    for root, _, names in os.walk(path):
+        for name in tqdm(names):
+            file_path = f"{root}/{name}"
+            with open(file_path, "r") as f:
+                a = f.readlines()
+                a = [i for i in a if i != "\n"]
+                a = [zhconv.convert(i, "zh-hans") for i in a]
+            for s in a:
+                if s.startswith("<doc id="):
+                    doc = []
+                elif s.startswith("</doc>"):
+                    corpus.append(doc)
+                    doc = []
+                else:
+                    doc.append(s.strip())
+    return corpus
+
+
 if __name__ == "__main__":
 
     # 50w
@@ -92,4 +114,10 @@ if __name__ == "__main__":
     c4 = load_pkl(path)
     corpus = c1 + c2 + c3 + c4
     path = "/data/home/ze.song/data/corpus/dialogue/corpus.pkl"
+    save_pkl(path, corpus)
+
+    # wiki
+    path = "/data/home/ze.song/data/raw_corpus/wikicorpus/zh/AA"
+    corpus = wiki_process(path)
+    path = "/data/home/ze.song/data/corpus/zh_wiki.pkl"
     save_pkl(path, corpus)
