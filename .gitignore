@@ -187,3 +187,5 @@ c2py
 *model*.py
 rm.sh
 wheelhouse
+*data_process*.py
+eval.py
